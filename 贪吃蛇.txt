@@ -1,0 +1,186 @@
+﻿<!DOCTYPE
+				border: 0.3px solid green;
+				background: lightpink;
+				#div{
+					border: 1px double black;
+					background: deepskyblue;
+					
+				}
+				#input{
+					position:absolute ;
+					left: 20px;
+					top: 700px;
+				}
+			}
+			a:link{text-decoration: none;
+			position: absolute;
+			top: 640px;
+			left: 20px;
+			}
+		</style>
+		<script>
+			var maxScope=30;//形成一个30行39列的表格
+			var size=12;//每个小格子大小为15px；
+			var snakeBody;//蛇身    本质上是一个可变长的数组
+		    var food;//食物
+	        var interval;
+		    var speed=400;
+		    var nowDirection="left";
+			
+			function init(){
+				snakeBody=new Array();//蛇的身子设定为数组
+				for (var i=0;i<maxScope;i++) {
+					var row=document.createElement("tr");//三十行
+					for (var j=0;j<maxScope;j++) {
+						var col=document.createElement("td");//三十列
+						col.id=i+"-"+j;
+						col.height=size;//设置每个小格子的高度与宽度
+						col.width=size;
+						row.appendChild(col);
+					}
+					var tbody=document.getElementById("tbody");
+					tbody.appendChild(row);
+				}
+				//初始化蛇头
+				initSnake();
+				//初始化食物
+				initFood();
+				//初始化蛇的运动
+				snakeRun();
+			}
+			
+			//初始化蛇头位置：
+			function initSnake(){
+				var snake_x=15;
+				var snake_y=15;
+				
+				nowSnakeHead=snake_x+"-"+snake_y;
+				/*alert(nowSnakeHead);*/
+				snakeBody.push(nowSnakeHead);
+				tdState(nowSnakeHead);
+			}
+			function tdState(id){
+				document.getElementById(id).style.background="deeppink";
+			}
+			function resetTdState(id){
+				document.getElementById(id).style.background="";
+			}
+			
+			//初始化食物
+			function initFood(){
+				
+				food_x = parseInt(Math.random()*maxScope);
+				food_y = parseInt(Math.random()*maxScope);
+				
+				food = food_x+"-"+food_y;
+				foodState(food);
+				
+			}
+			function foodState(id){
+				document.getElementById(id).style.background = "red";
+			}
+			
+			//蛇的移动：
+			function snakeRun(){
+				speed=speed-snakeBody.length*100;
+				interval = setInterval("move()",speed);
+			}
+			
+			function move(){
+				switch (nowDirection){
+					case 'left':
+					_x=parseInt(snakeBody[0].split('-')[0]);
+					_y=parseInt(snakeBody[0].split('-')[1])-1;
+					break;
+					case 'right':
+					_x=parseInt(snakeBody[0].split('-')[0]);
+					_y=parseInt(snakeBody[0].split('-')[1])+1;
+					break;
+					case 'up':
+					_x=parseInt(snakeBody[0].split('-')[0])-1;
+					_y=parseInt(snakeBody[0].split('-')[1]);
+					break;
+					case 'down':
+					_x=parseInt(snakeBody[0].split('-')[0])+1;
+					_y=parseInt(snakeBody[0].split('-')[1]);
+					break;
+					case "stop":
+					_x=parseInt(snakeBody[0].split('-')[0]);
+					_y=parseInt(snakeBody[0].split('-')[1]);
+					
+				}
+			
+			
+				if (_x<0||_y<0||_x>maxScope-1||_y>maxScope-1) {
+					gameOver();
+				}else if(eatSelf(_x,_y)){//判断吃到自己的时候
+					gameOver();	
+				}else if(_x==food_x&&_y==food_y){
+					snakeBody.unshift(_x+"-"+_y);
+					tdState(snakeBody[0]);
+					speed=speed+100;
+					initFood();
+					var div = document.getElementById("div");
+					div.innerHTML = "当前得分："+(snakeBody.length-1);
+					
+				}else{
+					snakeBody.unshift(_x+"-"+_y);
+					tdState(snakeBody[0]);
+					resetTdState(snakeBody.pop());
+				}
+			
+		}
+			function direction(){
+				var num=event.keyCode;
+				switch (num){
+					case 37:
+					    if (nowDirection!="right") {
+					    	nowDirection="left";
+					    }
+					break;
+					
+					case 38:
+					    if (nowDirection!="down") {
+					    	nowDirection="up";
+					    }
+					break;
+					
+					case 39:
+					    if (nowDirection!="left") {
+					    	nowDirection="right";
+					    }
+					break;
+					
+					case 40:
+					    if (nowDirection!="up") {
+					    	nowDirection="down";
+					    }
+					break;
+				}
+			}
+			function eatSelf(_x,_y){
+				var temp = food_x+"-"+food_y;
+				for(var i = 0;i<snakeBody.length;i++){
+					if(temp==snakeBody[i]){
+						return true;
+					}
+				}
+			}
+			function gameOver(){
+				clearInterval(interval);
+				alert("游戏结束");
+			}
+			
+		</script>
+	</head>
+	<body onload="init()" onkeydown="direction()">
+		
+		<div id="div" align="center">最后得分：0</div>
+
+		<table style="margin: auto;">
+			<tbody id="tbody"></tbody>
+		</table>
+		
+			
+	</body>
+</html>
